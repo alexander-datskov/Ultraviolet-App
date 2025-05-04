@@ -1,0 +1,40 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main # Or your main branch name (e.g., master)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write      # to deploy to Cloudflare Pages
+      id-token: write   # to verify the deployment origin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js (if your project needs Node.js for building)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Or your preferred Node.js version
+
+      - name: Install Dependencies (if needed)
+        run: npm install # Or yarn install, pnpm install
+
+      - name: Build Project
+        run: npm run build # Or your build command (e.g., yarn build, pnpm build, make build)
+        env:
+          # If your build process requires environment variables, define them here
+          # EXAMPLE_VAR: ${{ secrets.EXAMPLE_SECRET }}
+
+      - name: Upload to Cloudflare Pages
+        uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountIdentifier: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: your-project-name # Replace with your Cloudflare Pages project name
+          directory: ./dist # Or your build output directory (e.g., ./build, ./public)
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }} # Recommended for better performance and reliability
